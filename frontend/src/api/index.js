@@ -1,8 +1,12 @@
 import axios from 'axios';
 
-const BASE_URL = 'http://localhost:5000/api';
+// This will use the Render URL on Vercel, and localhost while you are developing
+const BASE_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:5000/api';
 
-const api = axios.create({ baseURL: BASE_URL });
+const api = axios.create({ 
+    baseURL: BASE_URL,
+    withCredentials: true // This is essential for keeping users logged in (cookies/sessions)
+});
 
 api.interceptors.request.use(config => {
     const token = localStorage.getItem('token');
