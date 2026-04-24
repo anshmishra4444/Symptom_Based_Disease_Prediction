@@ -10,9 +10,12 @@ export const SocketProvider = ({ children }) => {
     const [inferenceStatus, setInferenceStatus] = useState(null);
     const [connected, setConnected] = useState(false);
 
+    const SOCKET_URL =
+        process.env.REACT_APP_BACKEND_URL ||
+        "https://symptom-based-disease-prediction-2.onrender.com";
     useEffect(() => {
-        socketRef.current = io('http://localhost:5000', {
-            transports: ['websocket'],
+            socketRef.current = io(SOCKET_URL, {
+            transports: ["websocket"],
             reconnectionAttempts: 5,
         });
 
