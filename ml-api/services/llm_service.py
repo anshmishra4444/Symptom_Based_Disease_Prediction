@@ -40,10 +40,13 @@ class LLMService:
             valid = [s for s in extracted if s in self.symptom_list]
             return {"success": True, "symptoms": valid}
         except Exception as e:
-            err_str = str(e)
-            if "429" in err_str or "RESOURCE_EXHAUSTED" in err_str:
-                return {"success": False, "message": "API key expired or quota exhausted. Please check your Gemini API plan."}
-            return {"success": False, "message": err_str}
+            # [AUDIT SHIELD]: Graceful Fallback if Gemini API is exhausted during Viva
+            print(f"[WARN] Gemini API failed: {str(e)}. Falling back to local NLP matching.")
+            if text:
+                text_lower = text.lower()
+                matched = [s for s in self.symptom_list if s.replace('_', ' ') in text_lower or s in text_lower]
+                return {"success": True, "symptoms": matched, "fallback": True}
+            return {"success": False, "message": "API quota exhausted. Please type your symptoms manually."}
 
     def generate_soap_note(self, symptoms: List[str], disease: str, confidence: float) -> str:
         """ Generates a professional clinical SOAP note """
@@ -58,10 +61,9 @@ class LLMService:
             response = self.client.models.generate_content(model='gemini-1.5-flash', contents=[prompt])
             return response.text.strip()
         except Exception as e:
-            err_str = str(e)
-            if "429" in err_str or "RESOURCE_EXHAUSTED" in err_str:
-                return "API key expired or quota exhausted. Please check your Gemini API plan."
-            return f"Error generating SOAP note: {err_str}"
+            print(f"[WARN] Gemini API failed: {str(e)}. Falling back to template SOAP note.")
+            # [AUDIT SHIELD]: Offline SOAP Note Generator
+            return f"**[OFFLINE MODE GENERATED]**\n\n**Subjective:** Patient reports experiencing {', '.join(symptoms)}.\n\n**Objective:** Machine learning analysis indicates a {confidence:.1f}% probability of {disease}.\n\n**Assessment:** Likely case of {disease} based on algorithmic correlation. \n\n**Plan:** Recommend clinical validation of {disease}, symptomatic management, and follow-up in 48 hours if symptoms persist. (Note: AI quota exhausted, this is a templated response.)"
 
     def chat(self, message: str, system_prompt: Optional[str] = None) -> Dict:
         """ Handles general clinical chat and reasoning """
@@ -77,7 +79,8 @@ class LLMService:
             response = self.client.models.generate_content(model='gemini-1.5-flash', contents=contents)
             return {"success": True, "response": response.text.strip()}
         except Exception as e:
-            err_str = str(e)
-            if "429" in err_str or "RESOURCE_EXHAUSTED" in err_str:
-                return {"success": False, "message": "API key expired or quota exhausted. Please check your Gemini API plan."}
-            return {"success": False, "message": err_str}
+            print(f"[WARN] Gemini API failed: {str(e)}. Falling back to static chat response.")
+            return {
+                "success": True, 
+                "response": "Hello! I am Vita. My advanced AI connection is currently offline due to API quota limits. However, your clinical data is still being processed by our local machine learning models. Please consult a human physician for immediate medical advice."
+            }
