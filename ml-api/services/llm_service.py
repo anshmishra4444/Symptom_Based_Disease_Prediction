@@ -40,7 +40,10 @@ class LLMService:
             valid = [s for s in extracted if s in self.symptom_list]
             return {"success": True, "symptoms": valid}
         except Exception as e:
-            return {"success": False, "message": str(e)}
+            err_str = str(e)
+            if "429" in err_str or "RESOURCE_EXHAUSTED" in err_str:
+                return {"success": False, "message": "API key expired or quota exhausted. Please check your Gemini API plan."}
+            return {"success": False, "message": err_str}
 
     def generate_soap_note(self, symptoms: List[str], disease: str, confidence: float) -> str:
         """ Generates a professional clinical SOAP note """
@@ -55,7 +58,10 @@ class LLMService:
             response = self.client.models.generate_content(model='gemini-2.0-flash', contents=[prompt])
             return response.text.strip()
         except Exception as e:
-            return f"Error generating SOAP note: {str(e)}"
+            err_str = str(e)
+            if "429" in err_str or "RESOURCE_EXHAUSTED" in err_str:
+                return "API key expired or quota exhausted. Please check your Gemini API plan."
+            return f"Error generating SOAP note: {err_str}"
 
     def chat(self, message: str, system_prompt: Optional[str] = None) -> Dict:
         """ Handles general clinical chat and reasoning """
@@ -71,4 +77,7 @@ class LLMService:
             response = self.client.models.generate_content(model='gemini-2.0-flash', contents=contents)
             return {"success": True, "response": response.text.strip()}
         except Exception as e:
-            return {"success": False, "message": str(e)}
+            err_str = str(e)
+            if "429" in err_str or "RESOURCE_EXHAUSTED" in err_str:
+                return {"success": False, "message": "API key expired or quota exhausted. Please check your Gemini API plan."}
+            return {"success": False, "message": err_str}

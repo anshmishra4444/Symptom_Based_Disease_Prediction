@@ -1,4 +1,8 @@
-import shap
+try:
+    import shap
+except ImportError:
+    shap = None
+
 import numpy as np
 from typing import List, Dict
 from core.config import MODEL_CONFIG
@@ -6,7 +10,10 @@ from core.config import MODEL_CONFIG
 class ExplainabilityService:
     def __init__(self, rf_model, symptom_list):
         self.rf_model = rf_model
-        self.explainer = shap.TreeExplainer(rf_model)
+        if shap:
+            self.explainer = shap.TreeExplainer(rf_model)
+        else:
+            self.explainer = None
         self.symptom_list = symptom_list
         
     def get_shap_values(self, vector: np.ndarray) -> List[Dict]:
@@ -14,6 +21,9 @@ class ExplainabilityService:
         Calculates feature impact using SHAP (SHapley Additive exPlanations).
         This proves to the invigilator that the model isn't a 'Black Box'.
         """
+        if not self.explainer:
+            return []
+            
         shap_values = self.explainer.shap_values(vector)
         
         # Handle different SHAP return formats

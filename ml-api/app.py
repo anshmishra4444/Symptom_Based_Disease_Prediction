@@ -40,11 +40,13 @@ llm_service = None
 xai_service = None
 gnn_service = None
 
-@app.on_event("startup")
-async def startup_event():
-    """ Initialize modular services at startup """
-    global llm_service, xai_service, gnn_service
-    print("Starting Clean Architecture AI Engine...")
+services_initialized = False
+
+def init_services():
+    global llm_service, xai_service, gnn_service, services_initialized
+    if services_initialized:
+        return
+    print("Lazy loading services...")
     
     # 1. Validate Assets
     validate_assets()
@@ -58,7 +60,7 @@ async def startup_event():
     llm_service = LLMService(symptom_list)
     xai_service = ExplainabilityService(predict_service.rf_model, symptom_list)
     gnn_service = GNNService(num_symptoms, symptom_list)
-    
+    services_initialized = True
     print("System Ready & Hardened.")
 
 # ==================== Pydantic Schemas ====================
@@ -94,20 +96,24 @@ async def health():
 
 @app.get("/symptoms")
 async def get_symptoms():
+    init_services()
     return {"success": True, "symptoms": predict_service.symptom_list}
 
 @app.get("/feature-importance")
 async def get_features():
+    init_services()
     return xai_service.get_global_importance()
 
 @app.post("/chat")
 async def chat(request: ChatRequest):
+    init_services()
     res = llm_service.chat(request.message, request.systemPrompt)
     return res
 
 @app.post("/predict", response_model=PredictionResponse)
 async def predict(request: PredictionRequest):
     """ Main diagnostic orchestrator """
+    init_services()
     try:
         # 1. Ensemble Prediction
         res = predict_service.predict(request.symptoms)
@@ -144,6 +150,7 @@ async def predict(request: PredictionRequest):
 @app.post("/extract-symptoms")
 async def extract(request: MultimodalRequest):
     """ Multimodal entry point """
+    init_services()
     res = llm_service.extract_symptoms(
         text=request.text, 
         image_b64=request.image, 
