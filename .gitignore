@@ -1,0 +1,22 @@
+# Environment variables
+.env
+*.env
+
+# Dependencies
+node_modules/
+__pycache__/
+*.pyc
+
+# IDEs and OS files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Build and Cache
+build/
+dist/
+.cache/
+.eslintcache
+*.pack
+*.old
