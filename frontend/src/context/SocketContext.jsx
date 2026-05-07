@@ -13,7 +13,7 @@ export const SocketProvider = ({ children }) => {
     // ✅ FIXED: Proper backend URL handling (Render safe)
     const SOCKET_URL =
         process.env.REACT_APP_BACKEND_URL?.replace("/api", "") ||
-        "https://symptom-based-disease-prediction-2.onrender.com";
+        "http://localhost:5000";
 
     useEffect(() => {
         const socket = io(SOCKET_URL, {
