@@ -34,7 +34,7 @@ class LLMService:
         contents.append(prompt)
 
         try:
-            response = self.client.models.generate_content(model='gemini-1.5-flash', contents=contents)
+            response = self.client.models.generate_content(model='gemini-flash-latest', contents=contents)
             text_res = response.text.strip().replace("```json", "").replace("```", "")
             extracted = json.loads(text_res)
             valid = [s for s in extracted if s in self.symptom_list]
@@ -58,7 +58,7 @@ class LLMService:
             "Include Subjective, Objective, Assessment, and Plan."
         )
         try:
-            response = self.client.models.generate_content(model='gemini-1.5-flash', contents=[prompt])
+            response = self.client.models.generate_content(model='gemini-flash-latest', contents=[prompt])
             return response.text.strip()
         except Exception as e:
             print(f"[WARN] Gemini API failed: {str(e)}. Falling back to template SOAP note.")
@@ -95,7 +95,7 @@ class LLMService:
         contents.append(message)
 
         try:
-            response = self.client.models.generate_content(model='gemini-1.5-flash', contents=contents)
+            response = self.client.models.generate_content(model='gemini-flash-latest', contents=contents)
             return {"success": True, "response": response.text.strip()}
         except Exception as e:
             print(f"[WARN] Gemini API failed: {str(e)}. Falling back to static chat response.")
