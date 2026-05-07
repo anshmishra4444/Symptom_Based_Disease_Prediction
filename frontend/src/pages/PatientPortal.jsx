@@ -6,6 +6,20 @@ import {
     BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid
 } from 'recharts';
 
+// Helper for basic markdown (Bold and Bullets) without needing extra dependencies
+const renderMarkdown = (text) => {
+    if (!text) return { __html: '' };
+    let html = text
+        // Bold
+        .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+        // Bullets
+        .replace(/^\s*\*\s+(.*)$/gm, '<li>$1</li>')
+        // Newlines to BR
+        .replace(/\n/g, '<br/>');
+        
+    return { __html: html };
+};
+
 // ==================== Live Inference Status ====================
 const InferenceWidget = () => {
     const { inferenceStatus } = useSocket();
@@ -447,7 +461,9 @@ const DiagnosisResult = ({ result, onReset }) => {
                             <div style={{ display: 'flex', gap: '10px', alignItems: 'center', color: 'var(--text-muted)' }}>
                                 <span className="spinner spinner-sm" /> Translating with Gemini…
                             </div>
-                        ) : (translation || agentic_soap_note)}
+                        ) : (
+                            <div dangerouslySetInnerHTML={renderMarkdown(translation || agentic_soap_note)} />
+                        )}
                     </div>
                 </div>
             )}
