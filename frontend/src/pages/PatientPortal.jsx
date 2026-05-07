@@ -146,7 +146,7 @@ const SymptomEngine = ({ onResult }) => {
             {error && <div className="alert alert-error">{error}</div>}
 
             {/* Multimodal Tabs */}
-            <div className="glass-panel" style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            <div className="glass-panel" style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '16px', position: 'relative', zIndex: 10 }}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                     <div>
                         <div className="section-title" style={{ fontSize: '1rem' }}>✨ AI Symptom Extraction</div>
