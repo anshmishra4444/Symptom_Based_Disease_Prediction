@@ -1,0 +1,9 @@
+services:
+  - type: web
+    name: ml-api
+    env: python
+    buildCommand: pip install -r ml-api/requirements.txt
+    startCommand: uvicorn ml-api.app:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: PORT
+        default: "10000"
