@@ -34,7 +34,7 @@ class LLMService:
         contents.append(prompt)
 
         try:
-            response = self.client.models.generate_content(model='gemini-2.0-flash', contents=contents)
+            response = self.client.models.generate_content(model='gemini-1.5-flash', contents=contents)
             text_res = response.text.strip().replace("```json", "").replace("```", "")
             extracted = json.loads(text_res)
             valid = [s for s in extracted if s in self.symptom_list]
@@ -55,7 +55,7 @@ class LLMService:
             "Include Subjective, Objective, Assessment, and Plan."
         )
         try:
-            response = self.client.models.generate_content(model='gemini-2.0-flash', contents=[prompt])
+            response = self.client.models.generate_content(model='gemini-1.5-flash', contents=[prompt])
             return response.text.strip()
         except Exception as e:
             err_str = str(e)
@@ -74,7 +74,7 @@ class LLMService:
         contents.append(message)
 
         try:
-            response = self.client.models.generate_content(model='gemini-2.0-flash', contents=contents)
+            response = self.client.models.generate_content(model='gemini-1.5-flash', contents=contents)
             return {"success": True, "response": response.text.strip()}
         except Exception as e:
             err_str = str(e)
