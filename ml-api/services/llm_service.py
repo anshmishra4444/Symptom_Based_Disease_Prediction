@@ -62,8 +62,27 @@ class LLMService:
             return response.text.strip()
         except Exception as e:
             print(f"[WARN] Gemini API failed: {str(e)}. Falling back to template SOAP note.")
-            # [AUDIT SHIELD]: Offline SOAP Note Generator
-            return f"**[OFFLINE MODE GENERATED]**\n\n**Subjective:** Patient reports experiencing {', '.join(symptoms)}.\n\n**Objective:** Machine learning analysis indicates a {confidence:.1f}% probability of {disease}.\n\n**Assessment:** Likely case of {disease} based on algorithmic correlation. \n\n**Plan:** Recommend clinical validation of {disease}, symptomatic management, and follow-up in 48 hours if symptoms persist. (Note: AI quota exhausted, this is a templated response.)"
+            
+            # Formatting nicely for white-space: pre-wrap without needing a Markdown parser
+            symptoms_str = ', '.join([s.replace('_', ' ').title() for s in symptoms])
+            
+            return (
+                "⚠️ [OFFLINE MODE - AI QUOTA EXHAUSTED]\n"
+                "The live AI connection is unavailable. Generating automated algorithmic clinical report.\n"
+                "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n"
+                "🩺 S U B J E C T I V E :\n"
+                f"Patient reports experiencing the following: {symptoms_str}.\n\n"
+                "📊 O B J E C T I V E :\n"
+                f"Local Machine Learning analysis (RF+KNN) indicates a {confidence:.1f}% probability of {disease}.\n\n"
+                "📋 A S S E S S M E N T :\n"
+                f"Likely clinical presentation of {disease} based on algorithmic symptom correlation.\n\n"
+                "💊 P L A N :\n"
+                f"• Recommend physical examination to validate {disease}.\n"
+                "• Suggest standard symptomatic management and rest.\n"
+                "• Follow-up with a healthcare professional in 48 hours if symptoms persist.\n\n"
+                "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+                "Notice: This is a safe-fallback templated response. Your local predictive models are still fully functional."
+            )
 
     def chat(self, message: str, system_prompt: Optional[str] = None) -> Dict:
         """ Handles general clinical chat and reasoning """
